@@ -1,0 +1,51 @@
+---
+alwaysApply: true
+description: Data handling patterns for Next.js application
+---
+
+# Data Handling Rules
+
+## Data Retrieval
+- **ALWAYS** use Server Components for data retrieval
+- Never fetch data in Client Components unless absolutely necessary
+- Use Server Components to fetch data at build time or request time
+
+## Database Operations
+- **ALL** database operations (INSERT, UPDATE, DELETE) must be performed via Server Actions
+- Never perform direct database operations in Client Components
+- Server Actions should be defined in separate files (e.g., `actions/` directory)
+
+## Data Validation
+- **ALWAYS** use Zod for data validation
+- All data passed to Server Actions must be validated using Zod schemas
+- Define Zod schemas for all data structures
+
+## TypeScript Types
+- **NEVER** use `FormData` as a type for Server Action parameters
+- Always define proper TypeScript interfaces/types for Server Action parameters
+- Use Zod schemas to infer TypeScript types: `type ActionInput = z.infer<typeof actionSchema>`
+
+## Example Pattern
+```typescript
+// actions/user.ts
+import { z } from 'zod'
+
+const createUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  age: z.number().min(0)
+})
+
+type CreateUserInput = z.infer<typeof createUserSchema>
+
+export async function createUser(input: CreateUserInput) {
+  const validatedData = createUserSchema.parse(input)
+  // Database operation here
+}
+```
+
+## File Structure
+- Server Actions: `src/actions/`
+- Zod schemas: `src/lib/schemas/` or co-located with actions
+- Server Components: `src/components/server/`
+- Client Components: `src/components/client/`

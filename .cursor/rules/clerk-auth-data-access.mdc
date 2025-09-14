@@ -1,0 +1,125 @@
+---
+alwaysApply: true
+description: Clerk authentication and data access control rules
+---
+
+# Clerk Authentication & Data Access Control
+
+This project uses Clerk for authentication. **CRITICAL**: All data access must be properly secured to ensure users can only access their own data.
+
+## Authentication Setup
+
+- Clerk is configured in [layout.tsx](mdc:src/app/layout.tsx) with ClerkProvider
+- Middleware is set up in [middleware.ts](mdc:src/middleware.ts) using clerkMiddleware
+- Database schema in [schema.ts](mdc:src/db/schema.ts) includes userId field for data ownership
+
+## Data Access Rules
+
+### 1. User Authentication Check
+**ALWAYS** verify user authentication before any data operations:
+
+```typescript
+import { auth } from "@clerk/nextjs/server";
+
+// In API routes or server components
+const { userId } = auth();
+if (!userId) {
+  return new Response("Unauthorized", { status: 401 });
+}
+```
+
+### 2. Data Ownership Validation
+**MANDATORY** for all database queries - filter by userId:
+
+```typescript
+// ✅ CORRECT - Always filter by userId
+const userDecks = await db.select()
+  .from(decksTable)
+  .where(eq(decksTable.userId, userId));
+
+// ❌ WRONG - Never query without userId filter
+const allDecks = await db.select().from(decksTable);
+```
+
+### 3. API Route Protection
+**REQUIRED** for all API routes that access user data:
+
+```typescript
+// Example API route structure
+export async function GET() {
+  const { userId } = auth();
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  // Always filter by userId
+  const data = await db.select()
+    .from(decksTable)
+    .where(eq(decksTable.userId, userId));
+    
+  return Response.json(data);
+}
+```
+
+### 4. Database Schema Compliance
+- All user-owned tables MUST have a `userId` field
+- Reference the pattern in [schema.ts](mdc:src/db/schema.ts):
+  ```typescript
+  userId: varchar({ length: 255 }).notNull(), // Clerk user ID
+  ```
+
+### 5. Client-Side Protection
+- Use Clerk's `<SignedIn>` and `<SignedOut>` components
+- Never expose sensitive data to unauthenticated users
+- Always verify authentication state before rendering user-specific content
+
+## Security Checklist
+
+Before any data operation, verify:
+- [ ] User is authenticated (`userId` exists)
+- [ ] Database query includes `userId` filter
+- [ ] API route returns 401 for unauthenticated requests
+- [ ] Client-side components check authentication state
+- [ ] No direct database access without authentication
+
+## Common Patterns
+
+### Server Component Data Fetching
+```typescript
+import { auth } from "@clerk/nextjs/server";
+
+export default async function UserData() {
+  const { userId } = auth();
+  if (!userId) return <div>Please sign in</div>;
+  
+  const data = await db.select()
+    .from(decksTable)
+    .where(eq(decksTable.userId, userId));
+    
+  return <div>{/* Render user's data */}</div>;
+}
+```
+
+### API Route with CRUD Operations
+```typescript
+import { auth } from "@clerk/nextjs/server";
+
+export async function POST(request: Request) {
+  const { userId } = auth();
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  const body = await request.json();
+  
+  // Always include userId when creating records
+  const newRecord = await db.insert(decksTable).values({
+    ...body,
+    userId, // CRITICAL: Always include userId
+  });
+  
+  return Response.json(newRecord);
+}
+```
+
+**Remember**: Data security is non-negotiable. Every database operation must be filtered by the authenticated user's ID.

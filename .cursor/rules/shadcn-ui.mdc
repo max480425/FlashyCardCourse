@@ -1,0 +1,75 @@
+---
+alwaysApply: true
+description: shadcn/ui component library usage and guidelines
+---
+
+# shadcn/ui Component Library
+
+This project uses [shadcn/ui](https://ui.shadcn.com/) for all UI elements. The configuration is stored in [components.json](mdc:components.json).
+
+## Project Configuration
+
+- **Style**: New York variant
+- **Components Location**: `@/components/ui`
+- **Utils Location**: `@/lib/utils`
+- **Icons**: Lucide React
+- **CSS Variables**: Enabled
+- **Base Color**: Neutral
+
+## Adding New Components
+
+To add new shadcn/ui components to the project, use:
+
+```bash
+npx shadcn@latest add [component-name]
+```
+
+For example:
+```bash
+npx shadcn@latest add button
+npx shadcn@latest add card
+npx shadcn@latest add input
+```
+
+## Component Usage
+
+- Always import components from `@/components/ui/[component-name]`
+- Use the `cn()` utility function from `@/lib/utils` for conditional classes
+- Components are built with Radix UI primitives and styled with Tailwind CSS
+- All components support TypeScript out of the box
+
+## Available Components
+
+Check the current components in the [src/components/ui/](mdc:src/components/ui/) directory. Common components include:
+- Button
+- Card
+- Input
+- Dialog
+- Dropdown
+- Form components
+- Navigation components
+
+## Styling Guidelines
+
+- Use Tailwind CSS classes for styling
+- Leverage CSS variables for theming (defined in [src/app/globals.css](mdc:src/app/globals.css))
+- Follow the design system established by shadcn/ui
+- Use the `cn()` utility for conditional styling
+
+## Dependencies
+
+The project includes all necessary shadcn/ui dependencies:
+- `@radix-ui/react-slot`
+- `class-variance-authority`
+- `clsx`
+- `tailwind-merge`
+- `lucide-react`
+
+## Initialization
+
+If shadcn/ui is not initialized in a project, use:
+```bash
+npx shadcn@latest init
+```
+
+This will create the `components.json` configuration file and set up the necessary directory structure.

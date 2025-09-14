@@ -1,0 +1,113 @@
+---
+alwaysApply: true
+description: Database interaction rules for Drizzle ORM
+---
+
+# Database Interaction Rules
+
+## Schema and Query Requirements
+
+All database interactions MUST use the Drizzle ORM schema and queries defined in the project.
+
+### Required Imports
+Always import the database connection and schema tables:
+```typescript
+import { db } from '@/db';
+import { decksTable, cardsTable } from '@/db/schema';
+```
+
+### Schema Location
+The database schema is defined in [src/db/schema.ts](mdc:src/db/schema.ts) with the following tables:
+- `decksTable` - Contains flashcard decks
+- `cardsTable` - Contains individual flashcards
+
+### Database Connection
+The database connection is configured in [src/db/index.ts](mdc:src/db/index.ts) and exports a `db` instance using Drizzle with Neon.
+
+### Query Patterns
+
+#### SELECT Operations
+```typescript
+import { db } from '@/db';
+import { decksTable, cardsTable } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
+
+// Get all decks for a user
+const decks = await db.select().from(decksTable).where(eq(decksTable.userId, userId));
+
+// Get cards for a deck
+const cards = await db.select().from(cardsTable).where(eq(cardsTable.deckId, deckId));
+```
+
+#### INSERT Operations
+```typescript
+// Insert a new deck
+const [newDeck] = await db.insert(decksTable).values({
+  title: 'My Deck',
+  description: 'Description',
+  userId: 'user123'
+}).returning();
+
+// Insert a new card
+const [newCard] = await db.insert(cardsTable).values({
+  deckId: deckId,
+  front: 'Front text',
+  back: 'Back text'
+}).returning();
+```
+
+#### UPDATE Operations
+```typescript
+// Update a deck
+await db.update(decksTable)
+  .set({ title: 'Updated Title', updatedAt: new Date() })
+  .where(eq(decksTable.id, deckId));
+
+// Update a card
+await db.update(cardsTable)
+  .set({ front: 'Updated front', back: 'Updated back', updatedAt: new Date() })
+  .where(eq(cardsTable.id, cardId));
+```
+
+#### DELETE Operations
+```typescript
+// Delete a deck (cascade will handle cards)
+await db.delete(decksTable).where(eq(decksTable.id, deckId));
+
+// Delete a card
+await db.delete(cardsTable).where(eq(cardsTable.id, cardId));
+```
+
+### Rules
+1. **NEVER** use raw SQL queries or other ORMs
+2. **ALWAYS** import the `db` instance from `@/db`
+3. **ALWAYS** import required tables from `@/db/schema`
+4. **ALWAYS** use Drizzle query builders and operators
+5. **ALWAYS** handle errors appropriately with try/catch blocks
+6. **ALWAYS** use TypeScript types for better type safety
+7. **ALWAYS** use transactions for multiple related operations
+8. **ALWAYS** use `.returning()` for INSERT operations when you need the created record
+9. **ALWAYS** update the `updatedAt` timestamp on UPDATE operations
+
+### Common Drizzle Operators
+- `eq()` - equality
+- `ne()` - not equal
+- `gt()`, `gte()`, `lt()`, `lte()` - comparisons
+- `like()`, `ilike()` - pattern matching
+- `inArray()` - IN clause
+- `isNull()`, `isNotNull()` - null checks
+- `and()`, `or()` - logical operators
+- `desc()`, `asc()` - ordering
+- `limit()`, `offset()` - pagination
+
+### Error Handling
+Always wrap database operations in try/catch blocks:
+```typescript
+try {
+  const result = await db.select().from(decksTable);
+  return result;
+} catch (error) {
+  console.error('Database error:', error);
+  throw new Error('Failed to fetch decks');
+}
+```
