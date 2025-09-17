@@ -1,5 +1,7 @@
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getDeckStats, getRecentDecks } from "@/lib/actions";
 import Link from "next/link";
 
@@ -36,35 +38,41 @@ async function DashboardContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Stats Cards */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                Total Decks
-              </h3>
-              <p className="text-3xl font-bold text-primary">{stats.totalDecks}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {stats.totalDecks === 0 ? 'No decks created yet' : `${stats.totalDecks} deck${stats.totalDecks === 1 ? '' : 's'} created`}
-              </p>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Decks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">{stats.totalDecks}</div>
+                <CardDescription>
+                  {stats.totalDecks === 0 ? 'No decks created yet' : `${stats.totalDecks} deck${stats.totalDecks === 1 ? '' : 's'} created`}
+                </CardDescription>
+              </CardContent>
+            </Card>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                Total Cards
-              </h3>
-              <p className="text-3xl font-bold text-primary">{stats.totalCards}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {stats.totalCards === 0 ? 'No cards created yet' : `${stats.totalCards} card${stats.totalCards === 1 ? '' : 's'} across all decks`}
-              </p>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Cards</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">{stats.totalCards}</div>
+                <CardDescription>
+                  {stats.totalCards === 0 ? 'No cards created yet' : `${stats.totalCards} card${stats.totalCards === 1 ? '' : 's'} across all decks`}
+                </CardDescription>
+              </CardContent>
+            </Card>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                Study Sessions
-              </h3>
-              <p className="text-3xl font-bold text-primary">{stats.studySessions}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Start studying to track progress
-              </p>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Study Sessions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">{stats.studySessions}</div>
+                <CardDescription>
+                  Start studying to track progress
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Quick Actions */}
@@ -99,34 +107,36 @@ async function DashboardContent() {
             {recentDecks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentDecks.map((deck) => (
-                  <div key={deck.id} className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                      {deck.title}
-                    </h3>
-                    {deck.description && (
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {deck.description}
-                      </p>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">
-                        Updated {new Date(deck.updatedAt).toLocaleDateString()}
-                      </span>
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/decks/${deck.id}`}>
-                          View Deck
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
+                  <Card key={deck.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{deck.title}</CardTitle>
+                      {deck.description && (
+                        <CardDescription>{deck.description}</CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center">
+                        <Badge variant="secondary" className="text-xs">
+                          Updated {new Date(deck.updatedAt).toLocaleDateString()}
+                        </Badge>
+                        <Button size="sm" variant="outline" asChild>
+                          <Link href={`/decks/${deck.id}`}>
+                            View Deck
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-lg p-6">
-                <p className="text-muted-foreground text-center py-8">
-                  No decks created yet. Create your first deck to get started!
-                </p>
-              </div>
+              <Card>
+                <CardContent>
+                  <p className="text-muted-foreground text-center py-8">
+                    No decks created yet. Create your first deck to get started!
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
@@ -136,17 +146,19 @@ async function DashboardContent() {
     console.error('Dashboard error:', error);
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">
-            Error Loading Dashboard
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            There was an error loading your dashboard data.
-          </p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
-        </div>
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Error Loading Dashboard</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <CardDescription className="mb-4">
+              There was an error loading your dashboard data.
+            </CardDescription>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

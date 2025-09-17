@@ -1,11 +1,45 @@
 ---
 alwaysApply: true
-description: shadcn/ui component library usage and guidelines
+description: shadcn/ui component library usage and guidelines - ABSOLUTE REQUIREMENT
 ---
 
-# shadcn/ui Component Library
+# shadcn/ui Component Library - ABSOLUTE REQUIREMENT
 
-This project uses [shadcn/ui](https://ui.shadcn.com/) for all UI elements. The configuration is stored in [components.json](mdc:components.json).
+**CRITICAL RULE: This project uses ONLY [shadcn/ui](https://ui.shadcn.com/) components for ALL UI elements. NO custom UI components are allowed.**
+
+## ⚠️ STRICT PROHIBITIONS
+
+- **ABSOLUTELY NO custom UI components** - All UI must use shadcn/ui components
+- **NO custom buttons, inputs, cards, or any other UI elements**
+- **NO custom styling beyond Tailwind CSS classes**
+- **NO custom CSS for UI components**
+- **NO third-party UI libraries** (except shadcn/ui dependencies)
+
+## Clerk Authentication Requirements
+
+For Clerk authentication, you MUST:
+- Use shadcn/ui Button components for all sign-in/sign-up buttons
+- Use Clerk's modal-based authentication (not custom forms)
+- Import Clerk components like `SignInButton`, `SignUpButton`, `UserButton` from `@clerk/nextjs`
+- Style Clerk buttons using shadcn/ui Button variants and classes
+- Use Clerk's built-in modal system for authentication flows
+
+Example:
+```tsx
+import { SignInButton, SignUpButton } from '@clerk/nextjs'
+import { Button } from '@/components/ui/button'
+
+// Correct approach - shadcn/ui Button with Clerk functionality
+<SignInButton mode="modal">
+  <Button variant="default">Sign In</Button>
+</SignInButton>
+
+<SignUpButton mode="modal">
+  <Button variant="outline">Sign Up</Button>
+</SignUpButton>
+```
+
+The configuration is stored in [components.json](mdc:components.json).
 
 ## Project Configuration
 
@@ -18,7 +52,7 @@ This project uses [shadcn/ui](https://ui.shadcn.com/) for all UI elements. The c
 
 ## Adding New Components
 
-To add new shadcn/ui components to the project, use:
+**ONLY use shadcn/ui components. If a component doesn't exist in shadcn/ui, add it using:**
 
 ```bash
 npx shadcn@latest add [component-name]
@@ -29,14 +63,18 @@ For example:
 npx shadcn@latest add button
 npx shadcn@latest add card
 npx shadcn@latest add input
+npx shadcn@latest add dialog
+npx shadcn@latest add form
 ```
 
-## Component Usage
+## Component Usage - MANDATORY RULES
 
-- Always import components from `@/components/ui/[component-name]`
+- **MUST ALWAYS import components from `@/components/ui/[component-name]`**
+- **NEVER create custom components - use shadcn/ui components only**
 - Use the `cn()` utility function from `@/lib/utils` for conditional classes
 - Components are built with Radix UI primitives and styled with Tailwind CSS
 - All components support TypeScript out of the box
+- **If you need functionality not available in shadcn/ui, request the component to be added rather than creating custom ones**
 
 ## Available Components
 
@@ -49,12 +87,53 @@ Check the current components in the [src/components/ui/](mdc:src/components/ui/)
 - Form components
 - Navigation components
 
-## Styling Guidelines
+## Styling Guidelines - STRICT REQUIREMENTS
 
-- Use Tailwind CSS classes for styling
+- **ONLY use Tailwind CSS classes for styling**
+- **NO custom CSS for UI components**
 - Leverage CSS variables for theming (defined in [src/app/globals.css](mdc:src/app/globals.css))
-- Follow the design system established by shadcn/ui
+- **MUST follow the design system established by shadcn/ui**
 - Use the `cn()` utility for conditional styling
+- **Use shadcn/ui component variants (default, destructive, outline, secondary, ghost, link)**
+- **Apply shadcn/ui size variants (sm, default, lg, icon)**
+
+## Dark Mode Requirements - CRITICAL
+
+**This project operates in DARK MODE. All UI components and styling must be optimized for dark backgrounds.**
+
+### Color Contrast Rules
+- **NEVER use dark text on dark backgrounds** - This creates poor readability
+- **NEVER use light text on light backgrounds** - This creates poor readability
+- **ALWAYS ensure proper contrast ratios** for accessibility
+- **Use shadcn/ui's built-in dark mode support** which automatically handles color schemes
+
+### Dark Mode Best Practices
+- **Trust shadcn/ui's default dark mode styling** - Components are designed to work in both light and dark modes
+- **Use semantic color classes** like `text-foreground`, `bg-background`, `border-border` instead of specific colors
+- **Test all components in dark mode** to ensure readability
+- **Avoid hardcoded colors** that don't adapt to dark mode
+
+### Common Dark Mode Issues to Avoid
+```tsx
+// ❌ WRONG - Hardcoded colors that don't adapt
+<div className="bg-black text-black">Content</div>
+<div className="bg-white text-white">Content</div>
+
+// ✅ CORRECT - Semantic colors that adapt to dark mode
+<div className="bg-background text-foreground">Content</div>
+<div className="bg-card text-card-foreground">Content</div>
+```
+
+### Dark Mode Color Classes
+Use these semantic color classes that automatically adapt to dark mode:
+- `text-foreground` - Primary text color
+- `text-muted-foreground` - Secondary/muted text color
+- `bg-background` - Primary background color
+- `bg-card` - Card background color
+- `bg-popover` - Popover background color
+- `border-border` - Border color
+- `bg-primary` - Primary accent color
+- `text-primary-foreground` - Text on primary background
 
 ## Dependencies
 
@@ -73,3 +152,14 @@ npx shadcn@latest init
 ```
 
 This will create the `components.json` configuration file and set up the necessary directory structure.
+
+## 🚨 ENFORCEMENT REMINDER
+
+**THIS IS A NON-NEGOTIABLE RULE:**
+- Every UI element MUST use shadcn/ui components
+- NO exceptions for custom components
+- Clerk authentication MUST use shadcn/ui Button components with modal mode
+- If a component doesn't exist in shadcn/ui, add it using `npx shadcn@latest add`
+- NEVER create custom UI components
+
+**Violation of this rule will result in code rejection.**

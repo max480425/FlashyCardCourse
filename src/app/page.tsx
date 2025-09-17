@@ -24,7 +24,7 @@ export default function Home() {
           <p className="text-xl text-muted-foreground mb-8">
             Your personal flashcard platform
           </p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto"></div>
         </div>
       </div>
     );
@@ -40,12 +40,12 @@ export default function Home() {
         
         <SignedOut>
           <div className="flex gap-4 justify-center">
-            <SignInButton>
+            <SignInButton mode="modal">
               <Button size="lg">
                 Sign In
               </Button>
             </SignInButton>
-            <SignUpButton>
+            <SignUpButton mode="modal">
               <Button variant="secondary" size="lg">
                 Sign Up
               </Button>
@@ -56,7 +56,7 @@ export default function Home() {
         <SignedIn>
           <div className="text-muted-foreground">
             <p className="text-lg mb-4">Welcome back! Redirecting to dashboard...</p>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto"></div>
           </div>
         </SignedIn>
       </div>
